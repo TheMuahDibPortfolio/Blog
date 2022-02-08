@@ -1,1 +1,1 @@
-Sitemap: https://themuahdibportfolio.github.io/test/sitemap.xml
+Sitemap: /Blog/sitemap.xml
