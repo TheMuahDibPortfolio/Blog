@@ -4,8 +4,5 @@ title: About Me
 permalink: /about/
 ---
 
-This website is powered by **[fastpages](https://github.com/fastai/fastpages)** [^1].
+Edoardo is a master's student at Copenhagen Business School. His major is in Applied Economics and Finance, whereas his minor is in data science. 
 
-
-
-[^1]:a blogging platform that natively supports Jupyter notebooks in addition to other formats.
