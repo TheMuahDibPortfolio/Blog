@@ -1,0 +1,1132 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="twitter:card" content="summary_large_image" /><!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>Predict the Cooperative Patent Class (CPC) by means of NLP | TheMuahDibBlog</title>
+<meta name="generator" content="Jekyll v4.1.1" />
+<meta property="og:title" content="Predict the Cooperative Patent Class (CPC) by means of NLP" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="The application of data science techniques in the realm of patent analysis is in rapid growth, due to the availability of large quantity of data. Such a science leverages data to create better business intelligence, as well as facilitates decision making processes. The post recommends a machine learningdriven classification of patent publications based on a predictive model trained on the text data. The paper finds that a LinearSVC achieves best results, scoring an accuracy value of 67%." />
+<meta property="og:description" content="The application of data science techniques in the realm of patent analysis is in rapid growth, due to the availability of large quantity of data. Such a science leverages data to create better business intelligence, as well as facilitates decision making processes. The post recommends a machine learningdriven classification of patent publications based on a predictive model trained on the text data. The paper finds that a LinearSVC achieves best results, scoring an accuracy value of 67%." />
+<link rel="canonical" href="https://themuahdibportfolio.github.io/Blog/nlp/multi-class%20text%20classification/intellectual%20property/patent%20data/text%20vectorization%20models/bag%20of%20words%20model/multinomial%20naive%20bayes%20model/multi-model%20selection2022/02/17/_02_18_MultiClassPatent.html" />
+<meta property="og:url" content="https://themuahdibportfolio.github.io/Blog/nlp/multi-class%20text%20classification/intellectual%20property/patent%20data/text%20vectorization%20models/bag%20of%20words%20model/multinomial%20naive%20bayes%20model/multi-model%20selection2022/02/17/_02_18_MultiClassPatent.html" />
+<meta property="og:site_name" content="TheMuahDibBlog" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2022-02-17T00:00:00-06:00" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="Predict the Cooperative Patent Class (CPC) by means of NLP" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BlogPosting","dateModified":"2022-02-17T00:00:00-06:00","datePublished":"2022-02-17T00:00:00-06:00","description":"The application of data science techniques in the realm of patent analysis is in rapid growth, due to the availability of large quantity of data. Such a science leverages data to create better business intelligence, as well as facilitates decision making processes. The post recommends a machine learningdriven classification of patent publications based on a predictive model trained on the text data. The paper finds that a LinearSVC achieves best results, scoring an accuracy value of 67%.","headline":"Predict the Cooperative Patent Class (CPC) by means of NLP","mainEntityOfPage":{"@type":"WebPage","@id":"https://themuahdibportfolio.github.io/Blog/nlp/multi-class%20text%20classification/intellectual%20property/patent%20data/text%20vectorization%20models/bag%20of%20words%20model/multinomial%20naive%20bayes%20model/multi-model%20selection2022/02/17/_02_18_MultiClassPatent.html"},"url":"https://themuahdibportfolio.github.io/Blog/nlp/multi-class%20text%20classification/intellectual%20property/patent%20data/text%20vectorization%20models/bag%20of%20words%20model/multinomial%20naive%20bayes%20model/multi-model%20selection2022/02/17/_02_18_MultiClassPatent.html"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/Blog/assets/css/style.css"><link type="application/atom+xml" rel="alternate" href="https://themuahdibportfolio.github.io/Blog/feed.xml" title="TheMuahDibBlog" /><link rel="shortcut icon" type="image/x-icon" href="/Blog/images/favicon.ico"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Primer/15.2.0/primer.css" integrity="sha512-xTz2ys4coGAOz8vuV1NcQBkgVmKhsSEtjbqyMJbBHRplFuvKIUo6xhLHpAyPt9mfR6twHJgn9OgVLuqOvjeBhg==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.14.0/css/all.min.css" integrity="sha512-1PKOgIY59xJ8Co8+NE6FZ+LOAZKjy+KY8iq0G4B3CyeY6wYHN3yt9PW0XpSriVlkMXe40PTKnXrLnZ9+fkDaog==" crossorigin="anonymous" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.12.0/katex.min.css" integrity="sha512-h7nl+xz8wgDlNM4NqKEM4F1NkIRS17M9+uJwIGwuo8vGqIl4BhuCKdxjWEINm+xyrUjNCnK5dCrhM0sj+wTIXw==" crossorigin="anonymous" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.12.0/katex.min.js" integrity="sha512-/CMIhXiDA3m2c9kzRyd97MTb3MC6OVnx4TElQ7fkkoRghwDf6gi41gaT1PwF270W6+J60uTmwgeRpNpJdRV6sg==" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.12.0/contrib/auto-render.min.js" integrity="sha512-Do7uJAaHZm5OLrIv/yN4w0iG1dbu01kzdMNnFfu/mAqgUk6Nniv2JYHcwH+cNwjqgLcqcuBBk+JRvprLVI8azg==" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js" integrity="sha512-0doc9hKxR3PYwso42RD1p5ySZpzzuDiOwMrdCEh2WdJZCjcmFKc/wEnL+z8fBQrnHoiNWbo+3fiGkOYXBdQp4A==" crossorigin="anonymous"></script>
+    <script>
+    document.addEventListener("DOMContentLoaded", function() {
+        renderMathInElement( document.body, {
+        delimiters: [
+            {left: "$$", right: "$$", display: true},
+            {left: "[%", right: "%]", display: true},
+            {left: "$", right: "$", display: false}
+        ]}
+        );
+    });
+    </script>
+
+
+<script>
+function wrap_img(fn) {
+    if (document.attachEvent ? document.readyState === "complete" : document.readyState !== "loading") {
+        var elements = document.querySelectorAll(".post img");
+        Array.prototype.forEach.call(elements, function(el, i) {
+            if (el.getAttribute("title") && (el.className != "emoji")) {
+                const caption = document.createElement('figcaption');
+                var node = document.createTextNode(el.getAttribute("title"));
+                caption.appendChild(node);
+                const wrapper = document.createElement('figure');
+                wrapper.className = 'image';
+                el.parentNode.insertBefore(wrapper, el);
+                el.parentNode.removeChild(el);
+                wrapper.appendChild(el);
+                wrapper.appendChild(caption);
+            }
+        });
+    } else { document.addEventListener('DOMContentLoaded', fn); }
+}
+window.onload = wrap_img;
+</script>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function(){
+    // add link icon to anchor tags
+    var elem = document.querySelectorAll(".anchor-link")
+    elem.forEach(e => (e.innerHTML = '<i class="fas fa-link fa-xs"></i>'));
+    });
+</script>
+</head>
+<body><header class="site-header">
+
+  <div class="wrapper"><a class="site-title" rel="author" href="/Blog/">TheMuahDibBlog</a><nav class="site-nav">
+        <input type="checkbox" id="nav-trigger" class="nav-trigger" />
+        <label for="nav-trigger">
+          <span class="menu-icon">
+            <svg viewBox="0 0 18 15" width="18px" height="15px">
+              <path d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.032C17.335,0,18,0.665,18,1.484L18,1.484z M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.032C17.335,6.031,18,6.696,18,7.516L18,7.516z M18,13.516C18,14.335,17.335,15,16.516,15H1.484 C0.665,15,0,14.335,0,13.516l0,0c0-0.82,0.665-1.483,1.484-1.483h15.032C17.335,12.031,18,12.695,18,13.516L18,13.516z"/>
+            </svg>
+          </span>
+        </label>
+
+        <div class="trigger"><a class="page-link" href="/Blog/about/">About Me</a><a class="page-link" href="/Blog/search/">Search</a><a class="page-link" href="/Blog/categories/">Tags</a></div>
+      </nav></div>
+</header>
+<main class="page-content" aria-label="Content">
+      <div class="wrapper">
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+
+  <header class="post-header">
+    <h1 class="post-title p-name" itemprop="name headline">Predict the Cooperative Patent Class (CPC) by means of NLP</h1><p class="page-description">The application of data science techniques in the realm of patent analysis is in rapid growth, due to the availability of large quantity of data. Such a science leverages data to create better business intelligence, as well as facilitates decision making processes. The post recommends a machine learningdriven classification of patent publications based on a predictive model trained on the text data. The paper finds that a LinearSVC achieves best results, scoring an accuracy value of 67%.</p><p class="post-meta post-meta-title"><time class="dt-published" datetime="2022-02-17T00:00:00-06:00" itemprop="datePublished">
+        Feb 17, 2022
+      </time>
+       • <span class="read-time" title="Estimated read time">
+    
+    
+      5 min read
+    
+</span></p>
+
+    
+      <p class="category-tags"><i class="fas fa-tags category-tags-icon"></i></i> 
+      
+        <a class="category-tags-link" href="/Blog/categories/#NLP">NLP</a>
+        &nbsp;
+      
+        <a class="category-tags-link" href="/Blog/categories/#Multi-class text classification">Multi-class text classification</a>
+        &nbsp;
+      
+        <a class="category-tags-link" href="/Blog/categories/#Intellectual property">Intellectual property</a>
+        &nbsp;
+      
+        <a class="category-tags-link" href="/Blog/categories/#Patent data">Patent data</a>
+        &nbsp;
+      
+        <a class="category-tags-link" href="/Blog/categories/#Text Vectorization models">Text Vectorization models</a>
+        &nbsp;
+      
+        <a class="category-tags-link" href="/Blog/categories/#Bag of Words model">Bag of Words model</a>
+        &nbsp;
+      
+        <a class="category-tags-link" href="/Blog/categories/#Multinomial Naive Bayes model">Multinomial Naive Bayes model</a>
+        &nbsp;
+      
+        <a class="category-tags-link" href="/Blog/categories/#Multi-model selection.">Multi-model selection.</a>
+        
+      
+      </p>
+    
+
+    
+      
+        <div class="pb-5 d-flex flex-justify-center">
+          <div class="px-2">
+
+    <a href="https://github.com/TheMuahDibPortfolio/test/tree/master/_notebooks/2022_02_18_MultiClassPatent.ipynb" role="button" target="_blank">
+<img class="notebook-badge-image" src="/Blog/assets/badges/github.svg" alt="View On GitHub">
+    </a>
+</div>
+
+          
+          <div class="px-2">
+    <a href="https://colab.research.google.com/github/TheMuahDibPortfolio/test/blob/master/_notebooks/2022_02_18_MultiClassPatent.ipynb" target="_blank">
+        <img class="notebook-badge-image" src="/Blog/assets/badges/colab.svg" alt="Open In Colab"/>
+    </a>
+</div>
+          
+        </div>
+      </header>
+
+  <div class="post-content e-content" itemprop="articleBody">
+    <ul id="toc" class="section-nav">
+<li class="toc-entry toc-h2"><a href="#Import-of-packages">Import of packages </a></li>
+<li class="toc-entry toc-h2"><a href="#Making-CPC-label">Making CPC label </a></li>
+<li class="toc-entry toc-h2"><a href="#RegEx-preprocessing">RegEx preprocessing </a></li>
+<li class="toc-entry toc-h2"><a href="#Building-word-count-vectors-with-scikit-learn">Building word count vectors with scikit-learn </a>
+<ul>
+<li class="toc-entry toc-h3"><a href="#CountVectorizer-for-text-classification">CountVectorizer for text classification </a></li>
+<li class="toc-entry toc-h3"><a href="#TfidfVectorizer-for-text-classification">TfidfVectorizer for text classification </a></li>
+</ul>
+</li>
+<li class="toc-entry toc-h2"><a href="#Naive-Bayes:-Text-classification-model">Naive Bayes: Text classification model </a>
+<ul>
+<li class="toc-entry toc-h3"><a href="#Training-and-testing-the-labelling-model-with-CountVectorizer">Training and testing the labelling model with CountVectorizer </a></li>
+<li class="toc-entry toc-h3"><a href="#Training-and-testing-the-labelling-model-with-TfidfVectorizer">Training and testing the labelling model with TfidfVectorizer </a></li>
+</ul>
+</li>
+<li class="toc-entry toc-h2"><a href="#Attempts-at-improving-the-model">Attempts at improving the model </a>
+<ul>
+<li class="toc-entry toc-h3"><a href="#Experimenting-with-different-alphas-parameters-for-the-Multinomial-Naive-Bayes-model.">Experimenting with different alphas parameters for the Multinomial Naive Bayes model. </a></li>
+<li class="toc-entry toc-h3"><a href="#Inspecting-count-vectorizing-Multinomial-Naive-Bayes-model">Inspecting count vectorizing Multinomial Naive Bayes model </a></li>
+</ul>
+</li>
+<li class="toc-entry toc-h2"><a href="#Selection-of-various-model-with-count-vectorizing">Selection of various model with count vectorizing </a></li>
+<li class="toc-entry toc-h2"><a href="#Selection-of-various-model-with-tfidf-vectorizing">Selection of various model with tfidf vectorizing </a></li>
+</ul><!--
+#################################################
+### THIS FILE WAS AUTOGENERATED! DO NOT EDIT! ###
+#################################################
+# file to edit: _notebooks/2022_02_18_MultiClassPatent.ipynb
+-->
+
+<div class="container" id="notebook-container">
+        
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Import-of-packages">
+<a class="anchor" href="#Import-of-packages" aria-hidden="true"><span class="octicon octicon-link"></span></a>Import of packages<a class="anchor-link" href="#Import-of-packages"> </a>
+</h2>
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-python"><pre><span></span><span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span> <span class="c1"># data analysis</span>
+<span class="kn">from</span> <span class="nn">io</span> <span class="kn">import</span> <span class="n">StringIO</span> 
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span> 
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">seaborn</span> <span class="k">as</span> <span class="nn">sns</span>
+<span class="o">%</span><span class="n">matplotlib</span> <span class="n">inline</span> 
+<span class="n">sns</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">color_codes</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+<span class="c1">## Load the data</span>
+<span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s1">'/content/drive/MyDrive/Colab Notebooks/DSBA Patent Project /Paper /EDA &amp; NLP /patbase_export_274777127.csv'</span><span class="p">)</span>
+
+<span class="n">col</span> <span class="o">=</span> <span class="p">[</span><span class="s1">'Cooperative Patent Class'</span><span class="p">,</span> <span class="s1">'1st Main Claim'</span><span class="p">]</span> <span class="c1">#we only use those two columns </span>
+<span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">col</span><span class="p">]</span>
+<span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">dropna</span><span class="p">()</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>The data source of the patent-level data is PatBase, that is a product offered by MineSoft, i.e., patent solutions provider founded in 1996 offering online products and services, such as, patent research, monitoring, and analysis, as well as other intellectual property services. Moreover, the only two features needed in this prediction exercise are the Cooperative Patent Class and the text of the 1' Main Claim.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Making-CPC-label">
+<a class="anchor" href="#Making-CPC-label" aria-hidden="true"><span class="octicon octicon-link"></span></a>Making CPC label<a class="anchor-link" href="#Making-CPC-label"> </a>
+</h2>
+<p>We can see that each patent publication, i.e., each row, has multiple CPC labels. For convinience, we only use the first label in order of appearance.</p>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-python"><pre><span></span><span class="n">df</span><span class="p">[</span><span class="s1">'cpc'</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s1">'Cooperative Patent Class'</span><span class="p">]</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">extract</span><span class="p">(</span><span class="sa">r</span><span class="s1">'(^.{0,1})'</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="RegEx-preprocessing">
+<a class="anchor" href="#RegEx-preprocessing" aria-hidden="true"><span class="octicon octicon-link"></span></a>RegEx preprocessing<a class="anchor-link" href="#RegEx-preprocessing"> </a>
+</h2>
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-python"><pre><span></span><span class="n">df</span><span class="p">[</span><span class="s1">'main_claim'</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s1">'1st Main Claim'</span><span class="p">]</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">'\[EN\]\s1.\s'</span><span class="p">,</span> <span class="s1">''</span><span class="p">,</span> <span class="n">regex</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="c1"># string stripping EN</span>
+
+<span class="n">df</span><span class="p">[</span><span class="s1">'main_claim'</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s1">'main_claim'</span><span class="p">]</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+
+<span class="n">df</span><span class="p">[</span><span class="s1">'main_claim'</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s1">'main_claim'</span><span class="p">]</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">'\d+'</span><span class="p">,</span> <span class="s1">''</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+<div class="output_subarea output_stream output_stderr output_text">
+<pre>/usr/local/lib/python3.7/dist-packages/ipykernel_launcher.py:5: FutureWarning: The default value of regex will change from True to False in a future version.
+  """
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Building-word-count-vectors-with-scikit-learn">
+<a class="anchor" href="#Building-word-count-vectors-with-scikit-learn" aria-hidden="true"><span class="octicon octicon-link"></span></a>Building word count vectors with scikit-learn<a class="anchor-link" href="#Building-word-count-vectors-with-scikit-learn"> </a>
+</h2>
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-python"><pre><span></span><span class="kn">from</span> <span class="nn">sklearn.feature_extraction.text</span> <span class="kn">import</span> <span class="n">CountVectorizer</span>
+<span class="kn">from</span> <span class="nn">sklearn.model_selection</span> <span class="kn">import</span> <span class="n">train_test_split</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+    
+
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-python"><pre><span></span><span class="n">y</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s1">'cpc'</span><span class="p">]</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+    
+
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-python"><pre><span></span><span class="n">X_train</span><span class="p">,</span> <span class="n">X_test</span><span class="p">,</span> <span class="n">y_train</span><span class="p">,</span> <span class="n">y_test</span> <span class="o">=</span> <span class="n">train_test_split</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s1">'main_claim'</span><span class="p">],</span><span class="n">y</span><span class="p">,</span><span class="n">test_size</span><span class="o">=</span><span class="mf">0.33</span><span class="p">,</span><span class="n">random_state</span><span class="o">=</span><span class="mi">53</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="CountVectorizer-for-text-classification">
+<a class="anchor" href="#CountVectorizer-for-text-classification" aria-hidden="true"><span class="octicon octicon-link"></span></a>CountVectorizer for text classification<a class="anchor-link" href="#CountVectorizer-for-text-classification"> </a>
+</h3>
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-python"><pre><span></span><span class="n">count_vectorizer</span> <span class="o">=</span> <span class="n">CountVectorizer</span><span class="p">(</span><span class="n">stop_words</span><span class="o">=</span><span class="s1">'english'</span><span class="p">)</span>
+
+<span class="c1"># Transform the training data using only the 'text' column values: count_train </span>
+<span class="n">count_train</span> <span class="o">=</span> <span class="n">count_vectorizer</span><span class="o">.</span><span class="n">fit_transform</span><span class="p">(</span><span class="n">X_train</span><span class="p">)</span>
+
+<span class="c1"># Transform the test data using only the 'text' column values: count_test </span>
+<span class="n">count_test</span> <span class="o">=</span> <span class="n">count_vectorizer</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">X_test</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="TfidfVectorizer-for-text-classification">
+<a class="anchor" href="#TfidfVectorizer-for-text-classification" aria-hidden="true"><span class="octicon octicon-link"></span></a>TfidfVectorizer for text classification<a class="anchor-link" href="#TfidfVectorizer-for-text-classification"> </a>
+</h3>
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-python"><pre><span></span><span class="kn">from</span> <span class="nn">sklearn.feature_extraction.text</span> <span class="kn">import</span> <span class="n">TfidfVectorizer</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+    
+
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-python"><pre><span></span><span class="n">tfidf_vectorizer</span> <span class="o">=</span> <span class="n">TfidfVectorizer</span><span class="p">(</span><span class="n">stop_words</span><span class="o">=</span><span class="s1">'english'</span><span class="p">,</span>
+                                   <span class="n">sublinear_tf</span><span class="o">=</span> <span class="kc">True</span><span class="p">,</span> 
+                                   <span class="n">min_df</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> 
+                                   <span class="n">ngram_range</span><span class="o">=</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">),</span>
+                                   <span class="n">norm</span><span class="o">=</span><span class="s1">'l2'</span><span class="p">,</span> 
+                                   <span class="n">encoding</span><span class="o">=</span><span class="s1">'latin-1'</span><span class="p">)</span>
+ 
+<span class="c1"># Transform the training data: tfidf_train </span>
+<span class="n">tfidf_train</span> <span class="o">=</span> <span class="n">tfidf_vectorizer</span><span class="o">.</span><span class="n">fit_transform</span><span class="p">(</span><span class="n">X_train</span><span class="p">)</span>
+ 
+<span class="c1"># Transform the test data: tfidf_test </span>
+<span class="n">tfidf_test</span> <span class="o">=</span> <span class="n">tfidf_vectorizer</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">X_test</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Naive-Bayes:-Text-classification-model">
+<a class="anchor" href="#Naive-Bayes:-Text-classification-model" aria-hidden="true"><span class="octicon octicon-link"></span></a>Naive Bayes: Text classification model<a class="anchor-link" href="#Naive-Bayes:-Text-classification-model"> </a>
+</h2>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Training-and-testing-the-labelling-model-with-CountVectorizer">
+<a class="anchor" href="#Training-and-testing-the-labelling-model-with-CountVectorizer" aria-hidden="true"><span class="octicon octicon-link"></span></a>Training and testing the labelling model with CountVectorizer<a class="anchor-link" href="#Training-and-testing-the-labelling-model-with-CountVectorizer"> </a>
+</h3>
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-python"><pre><span></span><span class="kn">from</span> <span class="nn">sklearn.naive_bayes</span> <span class="kn">import</span> <span class="n">MultinomialNB</span>
+<span class="kn">from</span> <span class="nn">sklearn</span> <span class="kn">import</span> <span class="n">metrics</span>
+
+<span class="c1"># Instantiate a Multinomial Naive Bayes classifier: nb_classifier</span>
+<span class="n">nb_classifier</span> <span class="o">=</span> <span class="n">MultinomialNB</span><span class="p">(</span><span class="n">alpha</span> <span class="o">=</span> <span class="mf">2.6</span><span class="p">)</span>
+ 
+<span class="c1"># Fit the classifier to the training data</span>
+<span class="n">nb_classifier</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">count_train</span><span class="p">,</span> <span class="n">y_train</span><span class="p">)</span>
+ 
+<span class="c1"># Create the predicted tags: pred</span>
+<span class="n">predct</span> <span class="o">=</span> <span class="n">nb_classifier</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">count_test</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+    
+
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-python"><pre><span></span><span class="n">score</span> <span class="o">=</span> <span class="n">metrics</span><span class="o">.</span><span class="n">accuracy_score</span><span class="p">(</span><span class="n">y_test</span><span class="p">,</span><span class="n">predct</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">score</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>0.6304475278483487
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Training-and-testing-the-labelling-model-with-TfidfVectorizer">
+<a class="anchor" href="#Training-and-testing-the-labelling-model-with-TfidfVectorizer" aria-hidden="true"><span class="octicon octicon-link"></span></a>Training and testing the labelling model with TfidfVectorizer<a class="anchor-link" href="#Training-and-testing-the-labelling-model-with-TfidfVectorizer"> </a>
+</h3>
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-python"><pre><span></span><span class="n">nb_classifier</span> <span class="o">=</span> <span class="n">MultinomialNB</span><span class="p">()</span>
+
+<span class="c1"># Fit the classifier to the training data</span>
+<span class="n">nb_classifier</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">tfidf_train</span><span class="p">,</span> <span class="n">y_train</span><span class="p">)</span>
+ 
+<span class="c1"># Create the predicted tags: pred</span>
+<span class="n">predtf</span> <span class="o">=</span> <span class="n">nb_classifier</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">tfidf_test</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+    
+
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-python"><pre><span></span><span class="n">score</span> <span class="o">=</span> <span class="n">metrics</span><span class="o">.</span><span class="n">accuracy_score</span><span class="p">(</span><span class="n">y_test</span><span class="p">,</span><span class="n">predtf</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">score</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Attempts-at-improving-the-model">
+<a class="anchor" href="#Attempts-at-improving-the-model" aria-hidden="true"><span class="octicon octicon-link"></span></a>Attempts at improving the model<a class="anchor-link" href="#Attempts-at-improving-the-model"> </a>
+</h2>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Experimenting-with-different-alphas-parameters-for-the-Multinomial-Naive-Bayes-model.">
+<a class="anchor" href="#Experimenting-with-different-alphas-parameters-for-the-Multinomial-Naive-Bayes-model." aria-hidden="true"><span class="octicon octicon-link"></span></a>Experimenting with different alphas parameters for the Multinomial Naive Bayes model.<a class="anchor-link" href="#Experimenting-with-different-alphas-parameters-for-the-Multinomial-Naive-Bayes-model."> </a>
+</h3>
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-python"><pre><span></span><span class="n">alphas</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mf">0.1</span><span class="p">)</span>
+ 
+<span class="c1"># Define train_and_predict()</span>
+<span class="k">def</span> <span class="nf">train_and_predict</span><span class="p">(</span><span class="n">alpha</span><span class="p">):</span>
+    <span class="c1"># Instantiate the classifier: nb_classifier</span>
+    <span class="n">nb_classifier</span> <span class="o">=</span> <span class="n">MultinomialNB</span><span class="p">(</span><span class="n">alpha</span><span class="o">=</span><span class="n">alpha</span><span class="p">)</span>
+    <span class="c1"># Fit to the training data</span>
+    <span class="n">nb_classifier</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">count_train</span><span class="p">,</span><span class="n">y_train</span><span class="p">)</span>
+    <span class="c1"># Predict the labels: pred</span>
+    <span class="n">pred</span> <span class="o">=</span> <span class="n">nb_classifier</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">count_test</span><span class="p">)</span>
+    <span class="c1"># Compute accuracy: score</span>
+    <span class="n">score</span> <span class="o">=</span> <span class="n">metrics</span><span class="o">.</span><span class="n">accuracy_score</span><span class="p">(</span><span class="n">y_test</span><span class="p">,</span><span class="n">pred</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">score</span>
+ 
+<span class="c1"># Iterate over the alphas and print the corresponding score</span>
+<span class="k">for</span> <span class="n">alpha</span> <span class="ow">in</span> <span class="n">alphas</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">'Alpha: '</span><span class="p">,</span> <span class="n">alpha</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">'Score: '</span><span class="p">,</span> <span class="n">train_and_predict</span><span class="p">(</span><span class="n">alpha</span><span class="p">))</span>
+    <span class="nb">print</span><span class="p">()</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>Alpha:  2.0
+Score:  0.6294703928082861
+
+Alpha:  2.1
+Score:  0.6294703928082861
+
+Alpha:  2.2
+Score:  0.6296658198162987
+
+Alpha:  2.3000000000000003
+Score:  0.6302521008403361
+
+Alpha:  2.4000000000000004
+Score:  0.6306429548563611
+
+Alpha:  2.5000000000000004
+Score:  0.6306429548563611
+
+Alpha:  2.6000000000000005
+Score:  0.6304475278483487
+
+Alpha:  2.7000000000000006
+Score:  0.6294703928082861
+
+Alpha:  2.8000000000000007
+Score:  0.6300566738323237
+
+Alpha:  2.900000000000001
+Score:  0.6290795387922611
+
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Inspecting-count-vectorizing-Multinomial-Naive-Bayes-model">
+<a class="anchor" href="#Inspecting-count-vectorizing-Multinomial-Naive-Bayes-model" aria-hidden="true"><span class="octicon octicon-link"></span></a>Inspecting count vectorizing Multinomial Naive Bayes model<a class="anchor-link" href="#Inspecting-count-vectorizing-Multinomial-Naive-Bayes-model"> </a>
+</h3>
+<p>The result of the inspection is not clear to me. Indeed, all the classes' features are the same except for the first class.</p>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-python"><pre><span></span><span class="n">class_labels</span> <span class="o">=</span> <span class="n">nb_classifier</span><span class="o">.</span><span class="n">classes_</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+    
+
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-python"><pre><span></span><span class="n">feature_names</span> <span class="o">=</span> <span class="n">count_vectorizer</span><span class="o">.</span><span class="n">get_feature_names</span><span class="p">()</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+<div class="output_subarea output_stream output_stderr output_text">
+<pre>/usr/local/lib/python3.7/dist-packages/sklearn/utils/deprecation.py:87: FutureWarning: Function get_feature_names is deprecated; get_feature_names is deprecated in 1.0 and will be removed in 1.2. Please use get_feature_names_out instead.
+  warnings.warn(msg, category=FutureWarning)
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+    
+
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-python"><pre><span></span><span class="n">feat_with_weights</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">nb_classifier</span><span class="o">.</span><span class="n">coef_</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">feature_names</span><span class="p">))</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+<div class="output_subarea output_stream output_stderr output_text">
+<pre>/usr/local/lib/python3.7/dist-packages/sklearn/utils/deprecation.py:103: FutureWarning: Attribute `coef_` was deprecated in version 0.24 and will be removed in 1.1 (renaming of 0.26).
+  warnings.warn(msg, category=FutureWarning)
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+    
+
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-python"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="n">class_labels</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">feat_with_weights</span><span class="p">[:</span><span class="mi">20</span><span class="p">])</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>A [(-12.073243863160105, '_n'), (-12.073243863160105, 'aabb'), (-12.073243863160105, 'aabbco'), (-12.073243863160105, 'aabbs'), (-12.073243863160105, 'aacmm'), (-12.073243863160105, 'aad'), (-12.073243863160105, 'abandon'), (-12.073243863160105, 'abatement'), (-12.073243863160105, 'abbe'), (-12.073243863160105, 'aberration'), (-12.073243863160105, 'abiotically'), (-12.073243863160105, 'abl'), (-12.073243863160105, 'ablating'), (-12.073243863160105, 'ablative'), (-12.073243863160105, 'abnormalities'), (-12.073243863160105, 'abnormality'), (-12.073243863160105, 'abnormally'), (-12.073243863160105, 'abnormity'), (-12.073243863160105, 'abort'), (-12.073243863160105, 'aborted')]
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+    
+
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-python"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="n">class_labels</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">feat_with_weights</span><span class="p">[</span><span class="o">-</span><span class="mi">20</span><span class="p">:])</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>B [(-5.706773415428667, 'including'), (-5.668015405129263, 'coupled'), (-5.654878927223893, 'base'), (-5.632297322527184, 'assembly'), (-5.5704538172444815, 'extending'), (-5.516465507002063, 'anda'), (-5.513628625666863, 'position'), (-5.396160401912969, 'user'), (-5.247783826904798, 'body'), (-5.230560580921683, 'member'), (-5.103453193258515, 'device'), (-4.969921800633992, 'plurality'), (-4.92175839925537, 'surface'), (-4.863164234989317, 'having'), (-4.716325620804084, 'configured'), (-4.604730591663768, 'end'), (-4.5411557196183825, 'portion'), (-4.397233931131217, 'comprising'), (-4.065543850276079, 'said'), (-3.9583208889555124, 'second')]
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+    
+
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-python"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="n">class_labels</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>['A' 'B' 'C' 'D' 'E' 'F' 'G' 'H']
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+    
+
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-python"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="n">class_labels</span><span class="p">[</span><span class="mi">6</span><span class="p">],</span> <span class="n">feat_with_weights</span><span class="p">[</span><span class="o">-</span><span class="mi">20</span><span class="p">:])</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>G [(-5.706773415428667, 'including'), (-5.668015405129263, 'coupled'), (-5.654878927223893, 'base'), (-5.632297322527184, 'assembly'), (-5.5704538172444815, 'extending'), (-5.516465507002063, 'anda'), (-5.513628625666863, 'position'), (-5.396160401912969, 'user'), (-5.247783826904798, 'body'), (-5.230560580921683, 'member'), (-5.103453193258515, 'device'), (-4.969921800633992, 'plurality'), (-4.92175839925537, 'surface'), (-4.863164234989317, 'having'), (-4.716325620804084, 'configured'), (-4.604730591663768, 'end'), (-4.5411557196183825, 'portion'), (-4.397233931131217, 'comprising'), (-4.065543850276079, 'said'), (-3.9583208889555124, 'second')]
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Selection-of-various-model-with-count-vectorizing">
+<a class="anchor" href="#Selection-of-various-model-with-count-vectorizing" aria-hidden="true"><span class="octicon octicon-link"></span></a>Selection of various model with count vectorizing<a class="anchor-link" href="#Selection-of-various-model-with-count-vectorizing"> </a>
+</h2>
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-python"><pre><span></span><span class="kn">from</span> <span class="nn">sklearn.linear_model</span> <span class="kn">import</span> <span class="n">LogisticRegression</span>
+<span class="kn">from</span> <span class="nn">sklearn.ensemble</span> <span class="kn">import</span> <span class="n">RandomForestClassifier</span>
+<span class="kn">from</span> <span class="nn">sklearn.svm</span> <span class="kn">import</span> <span class="n">LinearSVC</span>
+<span class="kn">from</span> <span class="nn">sklearn.model_selection</span> <span class="kn">import</span> <span class="n">cross_val_score</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+    
+
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-python"><pre><span></span><span class="n">models</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="n">RandomForestClassifier</span><span class="p">(</span><span class="n">n_estimators</span><span class="o">=</span><span class="mi">200</span><span class="p">,</span> <span class="n">max_depth</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">0</span><span class="p">),</span>
+    <span class="n">LinearSVC</span><span class="p">(),</span>
+    <span class="n">MultinomialNB</span><span class="p">(</span><span class="n">alpha</span> <span class="o">=</span> <span class="mf">2.6</span><span class="p">),</span>
+    <span class="n">LogisticRegression</span><span class="p">(</span><span class="n">random_state</span><span class="o">=</span><span class="mi">0</span><span class="p">),</span>
+    <span class="p">]</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+    
+
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-python"><pre><span></span><span class="n">CV</span> <span class="o">=</span> <span class="mi">5</span>
+<span class="n">cv_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">index</span><span class="o">=</span><span class="nb">range</span><span class="p">(</span><span class="n">CV</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">models</span><span class="p">)))</span>
+
+<span class="n">entries</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="k">for</span> <span class="n">model</span> <span class="ow">in</span> <span class="n">models</span><span class="p">:</span>
+  <span class="n">model_name</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span>
+  <span class="n">accuracies</span> <span class="o">=</span> <span class="n">cross_val_score</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">count_train</span><span class="p">,</span> <span class="n">y_train</span><span class="p">,</span> <span class="n">scoring</span><span class="o">=</span><span class="s1">'accuracy'</span><span class="p">,</span> <span class="n">cv</span><span class="o">=</span><span class="n">CV</span><span class="p">)</span>
+  <span class="k">for</span> <span class="n">fold_idx</span><span class="p">,</span> <span class="n">accuracy</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">accuracies</span><span class="p">):</span> <span class="n">entries</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">model_name</span><span class="p">,</span> <span class="n">fold_idx</span><span class="p">,</span> <span class="n">accuracy</span><span class="p">))</span>
+
+<span class="n">cv_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">entries</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s1">'model_name'</span><span class="p">,</span> <span class="s1">'fold_idx'</span><span class="p">,</span> <span class="s1">'accuracy'</span><span class="p">])</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+    
+
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-python"><pre><span></span><span class="n">cv_df</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s1">'model_name'</span><span class="p">)</span><span class="o">.</span><span class="n">accuracy</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>model_name
+LinearSVC                 0.574743
+LogisticRegression        0.610743
+MultinomialNB             0.625468
+RandomForestClassifier    0.374146
+Name: accuracy, dtype: float64</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Selection-of-various-model-with-tfidf-vectorizing">
+<a class="anchor" href="#Selection-of-various-model-with-tfidf-vectorizing" aria-hidden="true"><span class="octicon octicon-link"></span></a>Selection of various model with tfidf vectorizing<a class="anchor-link" href="#Selection-of-various-model-with-tfidf-vectorizing"> </a>
+</h2>
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-python"><pre><span></span><span class="n">CV</span> <span class="o">=</span> <span class="mi">5</span>
+<span class="n">cv_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">index</span><span class="o">=</span><span class="nb">range</span><span class="p">(</span><span class="n">CV</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">models</span><span class="p">)))</span>
+
+<span class="n">entries</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="k">for</span> <span class="n">model</span> <span class="ow">in</span> <span class="n">models</span><span class="p">:</span>
+  <span class="n">model_name</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span>
+  <span class="n">accuracies</span> <span class="o">=</span> <span class="n">cross_val_score</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">tfidf_train</span><span class="p">,</span> <span class="n">y_train</span><span class="p">,</span> <span class="n">scoring</span><span class="o">=</span><span class="s1">'accuracy'</span><span class="p">,</span> <span class="n">cv</span><span class="o">=</span><span class="n">CV</span><span class="p">)</span>
+  <span class="k">for</span> <span class="n">fold_idx</span><span class="p">,</span> <span class="n">accuracy</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">accuracies</span><span class="p">):</span> <span class="n">entries</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">model_name</span><span class="p">,</span> <span class="n">fold_idx</span><span class="p">,</span> <span class="n">accuracy</span><span class="p">))</span>
+
+<span class="n">cv_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">entries</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s1">'model_name'</span><span class="p">,</span> <span class="s1">'fold_idx'</span><span class="p">,</span> <span class="s1">'accuracy'</span><span class="p">])</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+    
+
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-python"><pre><span></span><span class="n">cv_df</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s1">'model_name'</span><span class="p">)</span><span class="o">.</span><span class="n">accuracy</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>model_name
+LinearSVC                 0.674175
+LogisticRegression        0.658003
+MultinomialNB             0.547213
+RandomForestClassifier    0.374916
+Name: accuracy, dtype: float64</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>LinearSVC and Logistic Regression perform better than the other two classifiers, with LinearSVC having a slight advantage with a median accuracy of 67%. Focusing on the LinearSVC model, which has demonstrated to perform the best, I report its confusing matrix, to show the discrepancies between predicted and actual labels.</p>
+
+</div>
+</div>
+</div>
+</div>
+
+
+
+  </div><!-- from https://github.com/utterance/utterances -->
+<script src="https://utteranc.es/client.js"
+        repo="TheMuahDibPortfolio/test"
+        issue-term="title"
+        label="blogpost-comment"
+        theme="github-light"
+        crossorigin="anonymous"
+        async>
+</script><a class="u-url" href="/Blog/nlp/multi-class%20text%20classification/intellectual%20property/patent%20data/text%20vectorization%20models/bag%20of%20words%20model/multinomial%20naive%20bayes%20model/multi-model%20selection2022/02/17/_02_18_MultiClassPatent.html" hidden></a>
+</article>
+
+      </div>
+    </main><footer class="site-footer h-card">
+  <data class="u-url" href="/Blog/"></data>
+
+  <div class="wrapper">
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col">
+        <p class="feed-subscribe">
+          <a href="/Blog/feed.xml">
+            <svg class="svg-icon orange">
+              <use xlink:href="/Blog/assets/minima-social-icons.svg#rss"></use>
+            </svg><span>Subscribe</span>
+          </a>
+        </p>
+      </div>
+      <div class="footer-col">
+        <p>Everything you need to know about my DS background.</p>
+      </div>
+    </div>
+
+    <div class="social-links"><ul class="social-media-list"><li><a rel="me" href="https://github.com/TheMuahDibPortfolio" target="_blank" title="TheMuahDibPortfolio"><svg class="svg-icon grey"><use xlink:href="/Blog/assets/minima-social-icons.svg#github"></use></svg></a></li></ul>
+</div>
+
+  </div>
+
+</footer>
+</body>
+
+</html>
